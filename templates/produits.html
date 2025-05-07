@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head> 
+    <title>GESTION DES STOCKS</title>
+    <style type="text/css">
+        label {background: lightgray;}
+        table th, h1 {background: lightgray;}
+        form, table {display: block; border-width: medium;}  
+        legend, div {color:red;} 
+        table , h1, form{margin-right: 20cm;}
+        input[type='submit']{background: greenyellow;}
+        
+    </style>
+</head>
+<body>
+
+    {% if produits | length != 0 %}
+    <h1>Liste des Produits en Stock</h1>
+    <table border="1" id="table">
+        <tr>
+            <th>ID_Code</th>
+            <th>Type</th>
+            <th>Catégorie</th>
+            <th>Nom</th>
+            <th>Marque</th>
+            <th>Quantité</th>
+        </tr>
+        {% for produit in produits %}
+        {%if produit[5] >0 %}
+        <tr>
+            <td>{{ produit[0] }}</td>  <!-- ID_Code -->
+            <td>{{ produit[1] }}</td>  <!-- Type -->
+            <td>{{ produit[2] }}</td>  <!-- Catégorie -->
+            <td>{{ produit[3] }}</td>  <!-- Nom -->
+            <td>{{ produit[4] }}</td>  <!-- Marque -->
+            <td>{{ produit[5] }}</td>  <!-- Quantité -->
+        </tr>
+        {%endif%}
+        {% endfor %}
+    </table><br/><br/>
+    {% endif %}
+
+    <div id="div1"><strong></strong></div><br/><br/>
+
+    <a href="#formulaire">Ajouter ou retirer un produit</a><br/><br/>
+
+
+    <form action="/add" method="post" id="formulaire" onsubmit="return signaler(event)">
+        <fieldset>
+            <legend><strong>Enregistrer ou supprimer un produit</strong></legend><br>
+
+            <label for="ID_Code"><strong>ID_Code :</strong></label><br>
+            <input type="text" id="ID_Code" name="ID_Code" value="ID_Code" onclick="this.value=''"><br><br>
+
+            <label for="Type"><strong>Type :</strong></label><br>
+            <select name="Type" size="1">
+                <option value="Appareil">Appareil</option>
+                <option value="Outil">Outil</option>
+                <option value="Vestimentaire">Vestimentaire</option>
+                <option value="Meuble">Meuble</option>
+                <option value="Autre">Autre</option>                           
+            </select><br><br>
+
+            <label for="Categorie"><strong>Catégorie :</strong></label><br/>
+            <select name="Categorie" size="1">
+                <option value="Téléphone">Téléphone</option>
+                <option value="Ordinateur">Ordinateur</option>
+                <option value="Tablette">Tablette</option>
+                <option value="Objet de Cuisine">Objet de Cuisine</option>
+                <option value="Meuble">Meuble</option>
+                <option value="Autre">Autre</option>
+            </select><br/><br/>
+
+            <label for="Nom"><strong>Nom :</strong></label><br/>
+            <input type="text" id="Nom" name="Nom"><br/><br/>
+
+            <label for="Marque"><strong>Marque :</strong></label><br/>
+            <input type="text" id="Marque" name="Marque"><br/><br/>
+
+            <label for="Quantite"><strong>Quantité :</strong></label><br/>
+            <input type="number" id="Quantite" name="Quantite"><br/><br/>
+
+            <input type="submit" value="Enregistrer">
+        </fieldset>
+    </form>
+
+    <script type="text/javascript">
+        function signaler(event) {
+            div=document.getElementById('div1')
+            
+            // Récupération des valeurs saisies dans le formulaire
+            var code_lu = parseInt(document.getElementById('ID_Code').value);
+            var Qte_saisie = parseInt(document.getElementById('Quantite').value);
+            var lignes = document.querySelectorAll('#table tr');
+            var div = document.getElementById('div1');
+
+            // Parcours de toutes les lignes du tableau (en ignorant l'en-tête)
+            for (var i = 1; i < lignes.length; i++) {
+                // Récupérer ID_Code (première colonne) et Quantité (sixième colonne)
+                var code = parseInt(lignes[i].children[0].textContent);
+                var quantite_actuelle = parseInt(lignes[i].children[5].textContent);
+
+                // Comparaison de l'ID saisi avec celui de la ligne
+                if (code === code_lu) {
+                    // Vérifier si la quantité saisie est négative et dépasse le stock
+                    if (Qte_saisie < 0 && Math.abs(Qte_saisie) > quantite_actuelle) {
+                        alert("La quantité que vous retirez dépasse la quantité en stock !");
+                        div.innerText = " La quantité que vous retirez dépasse la quantité en stock.";
+                        event.preventDefault();  // Bloque la soumission du formulaire
+                        return false;
+                    }
+                }
+            }
+            return true;  // Autorise la soumission si tout est correct
+        }
+    </script>
+
+</body>
+</html>
